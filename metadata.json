@@ -1,0 +1,8 @@
+{
+  "name": "EQSolver",
+  "description": "Next-generation multi-disciplinary symbolical and numerical computational engine to parse, solve, graph, and explain mathematics, physics, and chemistry equations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
