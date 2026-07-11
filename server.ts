@@ -12,15 +12,26 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// Initialize Gemini SDK with telemetry User-Agent as required by the instruction
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
+// Lazy-initialized Gemini SDK client to prevent crashes at startup if the API key is missing
+let aiClient: GoogleGenAI | null = null;
+
+const getAiClient = (): GoogleGenAI => {
+  if (!aiClient) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY environment variable is required but missing.");
     }
+    aiClient = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
   }
-});
+  return aiClient;
+};
 
 // Helper to check for API key
 const checkApiKey = () => {
@@ -672,7 +683,7 @@ For physics/chemistry, make sure constants are correctly populated with names, v
       };
     }
 
-    response = await ai.models.generateContent({
+    response = await getAiClient().models.generateContent({
       model: "gemini-3.5-flash",
       contents,
       config: {
@@ -842,7 +853,7 @@ Return a highly detailed JSON structure. Ensure:
       };
     }
 
-    response = await ai.models.generateContent({
+    response = await getAiClient().models.generateContent({
       model: "gemini-3.5-flash",
       contents,
       config: {
