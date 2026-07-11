@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FlaskConical, Sparkles, Scale, RefreshCw, AlertCircle, HelpCircle } from "lucide-react";
+import { FlaskConical, Sparkles, Scale, RefreshCw, AlertCircle, HelpCircle, Cpu } from "lucide-react";
 import { ChemistryResult, AttachedFile } from "../types";
 import FileAttachmentZone from "./FileAttachmentZone";
 
@@ -9,6 +9,7 @@ export default function ChemistryPanel() {
   const [halfLifeInput, setHalfLifeInput] = useState("N_0 = 100, t = 15, t_half = 5.7");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [isQuotaError, setIsQuotaError] = useState(false);
   const [result, setResult] = useState<ChemistryResult | null>(null);
   const [activeTab, setActiveTab] = useState<"balancer" | "ph" | "decay">("balancer");
   const [attachedFile, setAttachedFile] = useState<AttachedFile | null>(null);
@@ -20,6 +21,7 @@ export default function ChemistryPanel() {
   const handleSolveChemistry = async () => {
     setIsLoading(true);
     setErrorMsg("");
+    setIsQuotaError(false);
     setResult(null);
 
     const body: Record<string, any> = {};
@@ -44,6 +46,9 @@ export default function ChemistryPanel() {
       
       const data = await response.json();
       if (!response.ok || data.error) {
+        if (data.isQuotaError || response.status === 429) {
+          setIsQuotaError(true);
+        }
         throw new Error(data.error || "Failed to process chemistry request.");
       }
       
@@ -212,11 +217,25 @@ export default function ChemistryPanel() {
           />
         </div>
 
-        {errorMsg && (
-          <div className="flex items-center gap-2 text-rose-600 bg-rose-50 p-3 rounded-lg border border-rose-200 text-xs shadow-sm" id="chem-error">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <span>{errorMsg}</span>
-          </div>
+         {errorMsg && (
+          isQuotaError ? (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 flex gap-2.5 items-start shadow-sm animate-fade-in" id="chem-quota-error-card">
+              <div className="bg-amber-100 p-1.5 rounded-lg text-amber-800 shrink-0">
+                <AlertCircle className="w-4 h-4" />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-xs font-bold text-amber-900 font-sans uppercase tracking-wider">Server is temporarily busy</h4>
+                <p className="text-[11px] text-amber-700 font-sans mt-0.5 leading-relaxed">
+                  We are currently receiving a high volume of calculations. Please wait a few moments and try your query again.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-rose-600 bg-rose-50 p-3 rounded-lg border border-rose-200 text-xs shadow-sm" id="chem-error">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{errorMsg}</span>
+            </div>
+          )
         )}
 
         {result && (

@@ -159,6 +159,21 @@ For physics/chemistry, make sure constants are correctly populated with names, v
     res.json(result);
   } catch (error: any) {
     console.error("Solver Endpoint Error:", error);
+    const errorStr = JSON.stringify(error) + (error.message || "");
+    if (
+      errorStr.toLowerCase().includes("quota") || 
+      errorStr.toLowerCase().includes("exhausted") || 
+      errorStr.toLowerCase().includes("429") ||
+      error.status === "RESOURCE_EXHAUSTED" ||
+      (error.code && error.code === 429)
+    ) {
+      return res.status(429).json({
+        error: "Gemini API Quota Exceeded (RESOURCE_EXHAUSTED)",
+        isQuotaError: true,
+        details: "You have exceeded the current free-tier quota of requests for the gemini-3.5-flash model. Please configure your own Google Gemini API key or wait a minute before retrying.",
+        rawError: error.message || "RESOURCE_EXHAUSTED"
+      });
+    }
     res.status(500).json({ error: error.message || "Failed to solve expression" });
   }
 });
@@ -298,6 +313,21 @@ Return a highly detailed JSON structure. Ensure:
     res.json(result);
   } catch (error: any) {
     console.error("Chemistry Endpoint Error:", error);
+    const errorStr = JSON.stringify(error) + (error.message || "");
+    if (
+      errorStr.toLowerCase().includes("quota") || 
+      errorStr.toLowerCase().includes("exhausted") || 
+      errorStr.toLowerCase().includes("429") ||
+      error.status === "RESOURCE_EXHAUSTED" ||
+      (error.code && error.code === 429)
+    ) {
+      return res.status(429).json({
+        error: "Gemini API Quota Exceeded (RESOURCE_EXHAUSTED)",
+        isQuotaError: true,
+        details: "You have exceeded the current free-tier quota of requests for the gemini-3.5-flash model. Please configure your own Google Gemini API key or wait a minute before retrying.",
+        rawError: error.message || "RESOURCE_EXHAUSTED"
+      });
+    }
     res.status(500).json({ error: error.message || "Failed to process chemistry query" });
   }
 });

@@ -20,7 +20,8 @@ import {
   CornerDownRight,
   Sparkles,
   Cpu,
-  Bookmark
+  Bookmark,
+  AlertCircle
 } from "lucide-react";
 import { SolverResult, SolverMode, ConstantItem, AttachedFile } from "./types";
 import { SCIENTIFIC_CONSTANTS, FORMULA_TEMPLATES } from "./constants";
@@ -30,6 +31,7 @@ import ChemistryPanel from "./components/ChemistryPanel";
 import StatisticsPanel from "./components/StatisticsPanel";
 import MathView from "./components/MathView";
 import FileAttachmentZone from "./components/FileAttachmentZone";
+import EQSolverLogo from "./components/EQSolverLogo";
 
 function translateInputToLatex(input: string): string {
   if (!input) return "";
@@ -78,6 +80,7 @@ export default function App() {
   const [query, setQuery] = useState("y = a*x^2 + b*x + c");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [isQuotaError, setIsQuotaError] = useState(false);
   const [solverResult, setSolverResult] = useState<SolverResult | null>(null);
   const [attachedFile, setAttachedFile] = useState<AttachedFile | null>(null);
 
@@ -111,6 +114,7 @@ export default function App() {
 
     setIsLoading(true);
     setErrorMsg("");
+    setIsQuotaError(false);
     setSolverResult(null);
     setFocusedIsolation(null);
 
@@ -128,6 +132,9 @@ export default function App() {
 
       const data = await response.json();
       if (!response.ok || data.error) {
+        if (data.isQuotaError || response.status === 429) {
+          setIsQuotaError(true);
+        }
         throw new Error(data.error || "Failed to solve the equation.");
       }
 
@@ -229,16 +236,8 @@ export default function App() {
       {/* Primary Global Navigation Header */}
       <header className="relative z-10 border-b border-slate-200 bg-white/80 backdrop-blur-md px-6 py-3.5 flex items-center justify-between" id="global-header">
         <div className="flex items-center gap-3">
-          <div className="bg-gradient-to-tr from-emerald-500 to-indigo-600 p-2 rounded-lg shadow-sm border border-emerald-400/20" id="header-logo-container">
-            <Atom className="w-5 h-5 text-white animate-spin-slow" id="logo-icon" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-sans font-bold text-base tracking-tight text-slate-800">EQSolver</h1>
-              <span className="text-[10px] bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded border border-indigo-100 uppercase tracking-wider font-mono">v3.5 Engine</span>
-            </div>
-            <p className="text-xs text-slate-500 font-sans">Multi-Disciplinary Symbolical & Numerical Computational Engine</p>
-          </div>
+          <EQSolverLogo size="md" />
+          <span className="text-[10px] bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded border border-indigo-100 uppercase tracking-wider font-mono self-start mt-1">v3.5 Engine</span>
         </div>
 
         {/* Global Stats or Indicators */}
@@ -360,9 +359,23 @@ export default function App() {
                 </div>
 
                 {errorMsg && (
-                  <div className="flex items-center gap-2 text-rose-600 bg-rose-50 p-3 rounded border border-rose-200 text-xs shadow-sm" id="parsing-error">
-                    <span>{errorMsg}</span>
-                  </div>
+                  isQuotaError ? (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 flex gap-2.5 items-start shadow-sm animate-fade-in" id="quota-error-card">
+                      <div className="bg-amber-100 p-1.5 rounded-lg text-amber-800 shrink-0">
+                        <AlertCircle className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-xs font-bold text-amber-900 font-sans uppercase tracking-wider">Server is temporarily busy</h4>
+                        <p className="text-[11px] text-amber-700 font-sans mt-0.5 leading-relaxed">
+                          We are currently receiving a high volume of calculations. Please wait a few moments and try your query again.
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-rose-600 bg-rose-50 p-3 rounded border border-rose-200 text-xs shadow-sm" id="parsing-error">
+                      <span>{errorMsg}</span>
+                    </div>
+                  )
                 )}
 
                 {/* Real-time Math Preview WYSIWYG Feedback */}
