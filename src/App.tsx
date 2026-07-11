@@ -481,6 +481,16 @@ export default function App() {
                     </div>
                   </div>
 
+                  {/* Local Fallback Mode Notice */}
+                  {solverResult.isLocalFallback && (
+                    <div className="bg-amber-50/70 border border-amber-200 rounded-lg p-3 flex gap-2.5 items-center animate-fade-in" id="local-fallback-notice">
+                      <Cpu className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span className="text-[11px] text-amber-800 font-sans leading-relaxed">
+                        Running in <strong>High-Performance Local Solvers Mode</strong>. Core algebraic calculations remain fully operational while server traffic is high.
+                      </span>
+                    </div>
+                  )}
+
                   {/* Variable Isolation Sub-Panel */}
                   {solverResult.variables && solverResult.variables.length > 0 && (
                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-100" id="isolation-widget">

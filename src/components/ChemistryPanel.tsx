@@ -244,6 +244,15 @@ export default function ChemistryPanel() {
               <Sparkles className="w-3.5 h-3.5 text-emerald-500" /> Stoichiometric Analysis Results
             </h4>
 
+            {result.isLocalFallback && (
+              <div className="bg-amber-50/70 border border-amber-200 rounded-lg p-3 flex gap-2.5 items-center animate-fade-in" id="chem-local-fallback-notice">
+                <Cpu className="w-4 h-4 text-amber-600 shrink-0" />
+                <span className="text-[11px] text-amber-800 font-sans leading-relaxed">
+                  Calculated via <strong>Local Chemical balancing & Kinetics engine</strong>. Reaction coefficients, stoichiometry, and molar masses are fully computed.
+                </span>
+              </div>
+            )}
+
             {result.balancedReaction && (
               <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm text-center" id="chem-balanced-reaction">
                 <span className="text-[10px] text-slate-500 font-sans block mb-1.5 uppercase tracking-wider font-semibold">Balanced Chemical Equation</span>
