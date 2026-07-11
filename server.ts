@@ -956,6 +956,9 @@ Return a highly detailed JSON structure. Ensure:
 });
 
 async function startServer() {
+  // Explicitly serve static files in the public directory to ensure favicons/logos are always reachable
+  app.use(express.static(path.join(process.cwd(), "public")));
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
