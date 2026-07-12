@@ -32,6 +32,7 @@ import StatisticsPanel from "./components/StatisticsPanel";
 import MathView from "./components/MathView";
 import FileAttachmentZone from "./components/FileAttachmentZone";
 import EQSolverLogo from "./components/EQSolverLogo";
+import AdSenseUnit from "./components/AdSenseUnit";
 
 function translateInputToLatex(input: string): string {
   if (!input) return "";
@@ -614,6 +615,11 @@ export default function App() {
           </div>
         </div>
       </main>
+
+      {/* Google AdSense Responsive Ad Unit */}
+      <div className="max-w-7xl mx-auto w-full px-6 mb-6" id="adsense-bottom-unit">
+        <AdSenseUnit />
+      </div>
 
       {/* Global minimal footer */}
       <footer className="border-t border-slate-200 bg-white py-3.5 px-6 text-center text-xs text-slate-400 font-mono" id="global-footer">
